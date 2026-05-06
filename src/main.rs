@@ -53,8 +53,15 @@ enum Commands {
         /// key, and may be used by the verifier to retrieve the verification key. If not
         /// specified, the file name of the key will be used. This option has no effect if a key is
         /// not specified (and therefore the generated CoRIM is unsigned).
-        #[arg(short, long)]
+        #[arg(short = 'K', long)]
         kid: Option<String>,
+
+        /// The path to a certificate to be included in x5chain. This flag may be specified multple
+        /// times. The certificates will be included in the order they are specified. The first
+        /// certificate should contain the public key that should be used to verify the CoRIM; the next
+        /// certificate should be the one certifying the signing cert, and so on.
+        #[arg(short, long = "cert", num_args(1..))]
+        certs: Vec<String>,
     },
 
     /// Parse a CBOR CoRIM into a JSON document.
@@ -73,7 +80,14 @@ enum Commands {
         source: String,
 
         /// Path to the key to be used in verification.
-        key: String,
+        #[arg(short, long)]
+        key: Option<String>,
+
+        /// Path to a X.509 certificate that will be used as a trusted root during x5chain
+        /// validation, in addition to the system certificates. This flag may be specified multiple
+        /// times.
+        #[arg(short, long = "root", num_args(1..))]
+        roots: Vec<String>,
     },
 }
 
@@ -102,13 +116,19 @@ fn main() {
     };
 
     match &args.command {
-        Some(Commands::Compile { source, key, kid }) => {
+        Some(Commands::Compile {
+            source,
+            key,
+            kid,
+            certs: cert,
+        }) => {
             info!("compiling...");
             debug!(source:?, output:?, key:?; "args:");
             terminate(compile::compile(
                 source,
                 key,
                 kid,
+                cert,
                 args.output,
                 args.meta,
                 args.force,
@@ -125,10 +145,10 @@ fn main() {
                 args.force,
             ));
         }
-        Some(Commands::Verify { source, key }) => {
+        Some(Commands::Verify { source, key, roots }) => {
             info!("verifying...");
             debug!(source:?, key:?; "args:");
-            terminate(verify::verify(source, key));
+            terminate(verify::verify(source, key, roots));
         }
         None => {
             error!("Please specify a command. Use -h/--help for help.");
