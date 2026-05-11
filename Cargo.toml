@@ -2,6 +2,10 @@
 name = "corim-tool"
 version = "0.2.0"
 edition = "2024"
+repository = "https://github.com/veraison/corim-tool"
+license = "Apache-2.0"
+description = "CLI for working with Concise Reference Integrity Manifests (CoRIMs)"
+readme = "README.md"
 
 [dependencies]
 clap = { version = "4.5.32", features = ["derive"] }
