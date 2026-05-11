@@ -241,7 +241,9 @@ checksum = "773648b94d0e5d620f64f280777445740e61fe701025087ec8b57f45c791888b"
 
 [[package]]
 name = "corim-rs"
-version = "0.1.0"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d607c5e5e776ebd44992dda947c4190752039c268c3eb42388e384ee48f8fec7"
 dependencies = [
  "base64",
  "ciborium",
