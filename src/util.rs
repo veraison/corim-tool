@@ -27,12 +27,9 @@ pub(crate) fn open_output(path: Option<String>, force: bool) -> Result<Box<dyn W
 pub(crate) fn read_der_from_path<P: AsRef<Path>>(path: P) -> Result<Vec<u8>> {
     let mut buf = fs::read(path.as_ref()).map_err(Error::custom)?;
 
-    match path.as_ref().extension().and_then(|ext| ext.to_str()) {
-        Some("pem") => {
-            let (pem, _) = Pem::read(Cursor::new(buf)).map_err(Error::custom)?;
-            buf = pem.contents;
-        }
-        _ => (),
+    if let Some("pem") = path.as_ref().extension().and_then(|ext| ext.to_str()) {
+        let (pem, _) = Pem::read(Cursor::new(buf)).map_err(Error::custom)?;
+        buf = pem.contents;
     }
 
     Ok(buf)
