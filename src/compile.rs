@@ -27,7 +27,7 @@ fn alg_from_signer(signer: &OpensslSigner) -> Result<CoseAlgorithm> {
 
 fn parse_cert(der: &'_ [u8]) -> Result<X509Certificate<'_>> {
     let (rest, cert) = parse_x509_certificate(der).map_err(Error::custom)?;
-    if rest.len() > 0 {
+    if !rest.is_empty() {
         return Err(Error::custom("trailing bytes"));
     }
 
@@ -55,7 +55,7 @@ pub(crate) fn compile(
     source: &str,
     key: &Option<String>,
     kid: &Option<String>,
-    cert_paths: &Vec<String>,
+    cert_paths: &[String],
     dest: Option<String>,
     meta_path: Option<String>,
     force: bool,
@@ -75,7 +75,7 @@ pub(crate) fn compile(
             debug!("assembling X5Chain...");
             let bufs = cert_paths
                 .iter()
-                .map(|p| crate::util::read_der_from_path(p))
+                .map(crate::util::read_der_from_path)
                 .collect::<Result<Vec<Vec<u8>>>>()?;
             let certs = bufs
                 .iter()
